@@ -1,10 +1,10 @@
 function Compare-Processes($direction) {
     $initial_processes = (nvidia-smi -q -d 'PIDS' | Select-String 'name') -replace '^\s*Name\s*:\s*'
-    return Compare-Object (Get-Content $env:USERPROFILE+'\.saved-processes') $initial_processes -IncludeEqual | Where-Object { $_.SideIndicator -eq $direction } | Select-Object -ExpandProperty inputobject
+    return Compare-Object (Get-Content $env:USERPROFILE'\.saved-processes') $initial_processes -IncludeEqual | Where-Object { $_.SideIndicator -eq $direction } | Select-Object -ExpandProperty inputobject
 }
 
-if (-not (Test-Path $env:USERPROFILE+'\.saved-processes')) {
-    New-Item $env:USERPROFILE+'\.saved-processes' -value '`r`n'
+if (-not (Test-Path $env:USERPROFILE'\.saved-processes')) {
+    Add-Content $env:USERPROFILE'\.saved-processes' -value 'Processes that will trigger script:'
 }
 
 $new_processes = Compare-Processes('=>')
@@ -13,7 +13,7 @@ foreach ($process in $new_processes) {
     $choices = '&Yes', '&No'
     $decision = $Host.UI.PromptForChoice($process, $question, $choices, 0)
     if ($decision -eq 0) {
-        Add-Content -Value $process -Path '.saved-processes'
+        Add-Content -Value $process -Path $env:USERPROFILE'\.saved-processes'
     }
 }
 
